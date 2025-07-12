@@ -1,3 +1,5 @@
+
+// File: jsconfig.json
 {
   "compilerOptions": {
     "paths": {

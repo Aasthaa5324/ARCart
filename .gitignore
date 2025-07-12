@@ -1,5 +1,5 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
+# This file is a template for a .gitignore file for a Next.js project with Supabase and AR features.
 # dependencies
 /node_modules
 /.pnp
