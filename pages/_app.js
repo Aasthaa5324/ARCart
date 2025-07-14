@@ -1,37 +1,41 @@
 import '@/styles/globals.css'
-import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 
-function AuthCheck({ children }) {
+function AuthWrapper({ children }) {
   const router = useRouter()
-  const [isClient, setIsClient] = useState(false)
+  const [authChecked, setAuthChecked] = useState(false)
 
   useEffect(() => {
-    setIsClient(true)
-    if (isClient && !localStorage.getItem('token')) {
-      router.push('/login')
+    // Skip auth check for login page
+    if (router.pathname === '/login') {
+      setAuthChecked(true)
+      return
     }
-  }, [isClient])
 
-  if (!isClient) return null // Don't run auth check on server
+    const session = JSON.parse(localStorage.getItem('fake-auth'))
+    if (!session) {
+      router.push('/login')
+    } else {
+      setAuthChecked(true)
+    }
+  }, [router])
+
+  if (!authChecked) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    )
+  }
 
   return children
 }
 
-export default function App({ Component, pageProps }) {
+export default function MyApp({ Component, pageProps }) {
   return (
-    <>
-      <Head>
-        <title>Furniture AR Viewer</title>
-      </Head>
-      {Component.noAuth ? (
-        <Component {...pageProps} />
-      ) : (
-        <AuthCheck>
-          <Component {...pageProps} />
-        </AuthCheck>
-      )}
-    </>
+    <AuthWrapper>
+      <Component {...pageProps} />
+    </AuthWrapper>
   )
 }

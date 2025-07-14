@@ -209,3 +209,7 @@
   align-items: center;
   height: 100vh;
 }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

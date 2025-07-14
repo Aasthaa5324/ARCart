@@ -1,10 +1,34 @@
 // components/SocialAuth.js
-'use client'
-import { supabase } from '@/lib/supabaseClient'
-import { FcGoogle } from 'react-icons/fc'
-import { FaGithub } from 'react-icons/fa'
+'use client'; // Required for Next.js client components
+import { useState } from 'react'; // Add this import
+import { FcGoogle } from 'react-icons/fc';
+import { FaGithub } from 'react-icons/fa';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function SocialAuth() {
+  const [loading, setLoading] = useState(null);
+  const [error, setError] = useState('');
+
+  const handleOAuthLogin = async (provider) => {
+    setLoading(provider);
+    setError('');
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      });
+
+      if (error) throw error;
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(null);
+    }
+  };
+
   return (
     <>
       <div className="relative my-6">
@@ -16,27 +40,31 @@ export default function SocialAuth() {
         </div>
       </div>
 
+      {error && (
+        <div className="mb-4 p-2 bg-red-100 text-red-700 rounded text-sm">
+          {error}
+        </div>
+      )}
+
       <div className="space-y-4">
         <button
-          onClick={() => supabase.auth.signInWithOAuth({
-            provider: 'google',
-          })}
-          className="w-full flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+          onClick={() => handleOAuthLogin('google')}
+          disabled={loading === 'google'}
+          className="w-full flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
         >
           <FcGoogle className="w-5 h-5" />
-          Continue with Google
+          {loading === 'google' ? 'Processing...' : 'Continue with Google'}
         </button>
 
         <button
-          onClick={() => supabase.auth.signInWithOAuth({
-            provider: 'github',
-          })}
-          className="w-full flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+          onClick={() => handleOAuthLogin('github')}
+          disabled={loading === 'github'}
+          className="w-full flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
         >
           <FaGithub className="w-5 h-5" />
-          Continue with GitHub
+          {loading === 'github' ? 'Processing...' : 'Continue with GitHub'}
         </button>
       </div>
     </>
-  )
+  );
 }

@@ -1,9 +1,5 @@
-
-// File: jsconfig.json
 {
   "compilerOptions": {
-    "paths": {
-      "@/*": ["./*"]
-    }
+    "typeRoots": ["./node_modules/@types", "./types"]
   }
 }
