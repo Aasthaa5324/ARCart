@@ -1,7 +1,7 @@
 import '@/styles/globals.css'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
-
+import 'leaflet/dist/leaflet.css';
 function AuthWrapper({ children }) {
   const router = useRouter()
   const [authChecked, setAuthChecked] = useState(false)
