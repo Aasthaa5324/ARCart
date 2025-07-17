@@ -261,7 +261,6 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import 'leaflet/dist/leaflet.css';
 
 export default function Home() {
   const [models, setModels] = useState([]);
@@ -270,6 +269,13 @@ export default function Home() {
   const [search, setSearch] = useState('');
   const [filteredModels, setFilteredModels] = useState([]);
   const router = useRouter();
+
+  useEffect(() => {
+    // Load Leaflet CSS only on client-side
+    if (typeof window !== 'undefined') {
+      import('leaflet/dist/leaflet.css');
+    }
+  }, []);
 
   useEffect(() => {
     const session = JSON.parse(localStorage.getItem('fake-auth'));
@@ -384,11 +390,8 @@ export default function Home() {
         <div className="relative z-40 flex items-center justify-center h-full">
           <div className="text-center text-white px-6 max-w-4xl">
             <h1 className="text-5xl md:text-7xl font-light mb-8 leading-tight">
-              "See it. Feel it. Place it - before you buy it."
-              <br />
-              Redefining furniture shopping with augmented reality.
-              <br />
-      
+              "The future of furniture shopping starts here"
+              
             </h1>
             
           </div>
@@ -456,12 +459,23 @@ export default function Home() {
                     <p className="text-gray-700 mb-1"><span className="font-semibold">Description:</span> {model.description}</p>
                     <p className="text-gray-700 mb-1"><span className="font-semibold">Seller:</span> {model.seller_name}</p>
                     <p className="text-gray-700 mb-3"><span className="font-semibold">Location:</span> {model.seller_address}</p>
-                    <Link
-                      href={`/view-ar?id=${model.model_id}`}
-                      className="mt-3 inline-block w-full text-center bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors font-medium"
-                    >
-                      View in AR
-                    </Link>
+                    <div className="flex gap-3 mt-3">
+                      <Link
+                        href={`/view-ar?id=${model.model_id}`}
+                        className="flex-1 text-center bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors font-medium"
+                      >
+                        View in AR
+                      </Link>
+                      <button
+                        onClick={() => {
+                          // Add your buy now logic here
+                          alert(`Purchasing ${model.name} for ₹${model.furniture_price}`);
+                        }}
+                        className="flex-1 text-center bg-orange-500 text-white py-3 px-4 rounded-lg hover:bg-orange-600 transition-colors font-medium"
+                      >
+                        Buy Now
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
