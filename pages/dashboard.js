@@ -24,8 +24,8 @@ export default function UploadFurniture() {
     price: '',
     sellerName: '',
     sellerAddress: '',
-    description: '', // Added description field
-    category: 'chair' // Added category field
+    description: '',
+    category: 'chair'
   });
   
   const [location, setLocation] = useState({
@@ -80,7 +80,7 @@ export default function UploadFurniture() {
     if (file.size > maxSize) {
       setUi(prev => ({
         ...prev,
-        error: `File too large. Maximum size is 10MB.`
+        error: `File too large. Maximum size is 100MB.`
       }));
       return;
     }
@@ -115,6 +115,7 @@ export default function UploadFurniture() {
 
   // Handle location selection from map
   const handleLocationSelect = (lat, lng, address) => {
+    console.log('Location selected:', { lat, lng, address }); // Debug log
     setLocation({ lat, lng, address });
     setFormData(prev => ({
       ...prev,
@@ -124,13 +125,13 @@ export default function UploadFurniture() {
 
   // Validate form data
   const validateForm = () => {
-    const { name, price, sellerName } = formData;
+    const { name, price, sellerName, sellerAddress } = formData;
     const { thumbnail, modelFile } = files;
 
     if (!name.trim()) return 'Please enter furniture name';
     if (!price || isNaN(parseFloat(price)) || parseFloat(price) <= 0) return 'Please enter a valid price';
     if (!sellerName.trim()) return 'Please enter seller name';
-    if (!location.address) return 'Please select a location on the map';
+    if (!sellerAddress) return 'Please select a location on the map';
     if (!thumbnail) return 'Please upload a thumbnail image';
     if (!modelFile) return 'Please upload a 3D model file';
 
@@ -178,7 +179,7 @@ export default function UploadFurniture() {
       // Get public URLs
       setUi(prev => ({ ...prev, progress: 70 }));
       const { data: thumbUrlData } = supabase.storage
-        .from('thumbnails')
+        .from('thumbnail')
         .getPublicUrl(`${id}.${thumbnailExt}`);
 
       const { data: modelUrlData } = supabase.storage
@@ -207,16 +208,19 @@ export default function UploadFurniture() {
       setUi(prev => ({ ...prev, progress: 100, success: 'Furniture uploaded successfully!' }));
       
       // Reset form
-      setFormData({
-        name: '',
-        price: '',
-        sellerName: '',
-        sellerAddress: '',
-        description: '',
-        category: 'chair'
-      });
-      setFiles({ thumbnail: null, modelFile: null });
-      setLocation({ lat: 28.5355, lng: 77.3910, address: '' });
+      setTimeout(() => {
+        setFormData({
+          name: '',
+          price: '',
+          sellerName: '',
+          sellerAddress: '',
+          description: '',
+          category: 'chair'
+        });
+        setFiles({ thumbnail: null, modelFile: null });
+        setLocation({ lat: 28.5355, lng: 77.3910, address: '' });
+        setUi(prev => ({ ...prev, progress: 0, success: '' }));
+      }, 2000);
 
     } catch (err) {
       console.error('Upload error:', err);
@@ -342,7 +346,8 @@ export default function UploadFurniture() {
                       type="text"
                       value={formData.sellerName}
                       onChange={(e) => handleInputChange('sellerName', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                    
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                       placeholder="Your full name"
                     />
                   </div>
@@ -353,7 +358,7 @@ export default function UploadFurniture() {
                       Selected Location *
                     </label>
                     <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600">
-                      {location.address || 'Click on the map to select location'}
+                      {formData.sellerAddress || 'Click on the map to select location'}
                     </div>
                   </div>
                 </div>
@@ -393,6 +398,11 @@ export default function UploadFurniture() {
                         <p className="text-xs text-gray-500 mt-1">
                           JPEG, PNG, or WebP. Maximum 10MB.
                         </p>
+                        {files.thumbnail && (
+                          <p className="text-xs text-green-600 mt-1">
+                            Selected: {files.thumbnail.name}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -408,8 +418,13 @@ export default function UploadFurniture() {
                           className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
                         />
                         <p className="text-xs text-gray-500 mt-1">
-                          GLB or GLTF format. Maximum 10MB.
+                          GLB or GLTF format. Maximum 100MB.
                         </p>
+                        {files.modelFile && (
+                          <p className="text-xs text-green-600 mt-1">
+                            Selected: {files.modelFile.name}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
